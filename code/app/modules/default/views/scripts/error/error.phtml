@@ -1,0 +1,32 @@
+<?php
+$this->headTitle()->prepend('Ошибка');
+$this->placeholder('contentName')->set('Ошибка!');
+?>
+
+<h2><?= $this->title ?></h2>
+
+<?php if ($this->exception): ?>
+<h3>Детали ошибки:</h3>
+<p>
+    <b>Класс:</b> <?= get_class($this->exception) ?><br>
+    <b>Сообщение:</b> <?= $this->exception->getMessage() ?><br>
+    <?php
+    if ($this->exception instanceof Ik_Result_Exception) {
+        if ($result = $this->exception->getResult()) {
+            echo '<b>' . get_class($result) . ':</b>';
+            Zend_Debug::dump($result->toArray());
+        }
+    } 
+    ?>
+</p>
+
+<h4>Трассировка:</h4>
+<pre style="font-size: 90%; text-align: left;">
+<?= $this->exception->getTraceAsString() ?>
+</pre>
+    
+<h4>Запрос:</h4>
+<pre>
+<? var_dump($this->request->getParams()) ?>
+</pre>
+<?php endif; ?>

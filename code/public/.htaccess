@@ -1,0 +1,64 @@
+# Set default charset
+AddDefaultCharset utf-8
+AddCharset utf-8 *
+
+
+#AuthName "Auth"
+#AuthType Basic
+#AuthUserFile /usr/local/www/shop/.htpasswd
+#require valid-user
+
+
+
+
+<IfModule mod_charset.c>
+    CharsetSourceEnc utf-8
+    CharsetDefault utf-8
+</IfModule>
+
+# Set php options
+<IfModule mod_php5.c>
+    php_flag    short_open_tag  On
+#    php_value	auto_prepend_file 	C:/Web/ik/app/autoprepend.inc.php
+#    php_flag    report_memleaks     On
+#    php_flag    track_errors        Off
+#    php_flag    html_errors         On
+#    php_value   docref_root         "http://ru2.php.net/"
+</IfModule>
+
+# Protect files and directories from prying eyes.
+<FilesMatch "\.(engine|inc|info|install|module|profile|po|sh|.*sql|theme|tpl(\.php)?|xtmpl)$|^(code-style\.pl|Entries.*|Repository|Root|Tag|Template)$">
+  Order allow,deny
+</FilesMatch>
+
+# Don't show directory listings for URLs which map to a directory.
+Options -Indexes
+
+# Follow symbolic links in this directory.
+Options +FollowSymLinks
+
+# Set the default handler.
+DirectoryIndex index.php index.html
+
+# Various rewrite rules.
+<IfModule mod_rewrite.c>
+  RewriteEngine on
+  
+  # RewriteCond %{HTTP_HOST} ^example\.com$ [NC]
+  # RewriteRule ^(.*)$ http://www.example.com/$1 [L,R=301]
+
+  # Modify the RewriteBase if you are using Drupal in a subdirectory and
+  # the rewrite rules are not working properly.
+  #RewriteBase /drupal
+
+  # Rewrite current-style URLs of the form 'index.php?q=x'.
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule !\.(js|ico|gif|jpg|png|css|xml|xslt)$ index.php [L,QSA]
+  # RewriteRule ^(.*)$ index.php [L,QSA]      
+
+  # RewriteRule .*$ index.php [L]
+</IfModule>
+
+# Setup environment vars
+SetEnv APPLICATION_ENV development

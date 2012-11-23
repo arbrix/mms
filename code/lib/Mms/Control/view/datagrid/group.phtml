@@ -1,0 +1,28 @@
+<td><ul>
+<?php 
+foreach ($this->aliasSet as $alias) {
+    $data = $this->data[$alias];
+    if (empty($data)) {
+        continue;
+    }
+    echo '<li><b>' . $this->title[$alias] . '</b> : ';
+    if (empty($this->metaData[$alias]['tpl']) || $this->metaData[$alias]['tpl'] == 'text') {
+        echo $data;
+    } else {
+        try{
+        echo $this->partial(
+           'block/control/datagrid/' . $this->metaData[$alias]['tpl'] . '.phtml', 
+            array(
+                'alias' => $alias,
+             	'data' => $this->data,
+                'metaData' => $this->metaData[$alias],
+         ));
+        }catch(Exception $ex) {
+            echo $ex->getMessage();
+        }
+    }
+    echo '</li>';
+} 
+?>
+</ul>
+</td>

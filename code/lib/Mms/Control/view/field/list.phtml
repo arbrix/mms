@@ -1,0 +1,8 @@
+<select id="<?= $this->id ?>"  class="medium" name="<?= $this->name ?>">
+<?php foreach ($this->listSet  as $key => $instance) {
+echo '<option value="' . $key . '"'
+	. (($this->field == $instance)?' selected="selected"':'')
+	. '>' . $instance . '</option>';
+}
+?>
+</select>
