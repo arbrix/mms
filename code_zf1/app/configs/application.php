@@ -33,9 +33,6 @@ $config['base'] = array (
         'mvc_views'      => '/views/',
         'mvc_layouts'    => '/layouts/',
         'mvc_controllers'=> '/controllers/',
-        'item_type'      => BASE_PATH . '/app/code/Shop/Item/Type/',
-        'block'          => BASE_PATH . '/app/modules/default/views/scripts/block/',
-        'scaffolding'    => BASE_PATH . '/app/modules/admins/views/scripts/scaffolding/',
     ),
     'url' => array (
          'image'        => '/img/',
@@ -73,7 +70,7 @@ $config['base'] = array (
         'params'    => array (
             'host'          => 'localhost',
             'username'      => 'root',
-            'password'      => 'iddqd',
+            'password'      => '',
             'dbname'        => 'mms',
             'charset'       => 'utf8',
         ),
