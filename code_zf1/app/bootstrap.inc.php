@@ -37,6 +37,7 @@ set_include_path(implode(PATH_SEPARATOR, array(
 )));
 
 // Loader
+require_once('common.inc.php');
 require_once('Zend/Loader/Autoloader.php');
 $loader = Zend_Loader_Autoloader::getInstance();
 $loader->setFallbackAutoloader(true);
