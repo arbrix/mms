@@ -1,0 +1,59 @@
+<?php if (count($this->postData) > 0) : ?>
+<div class="applied-filters clearfix" id="spanFilterBlock">
+    <div class="title"><?= _t('Filters was applied') ?>:</div>
+    <div class="filters" id="spanFilterSet">
+    <?php foreach ($this->postData as $alias => $sets) : ?>
+       <span class="item" id="<?= $alias ?>SpanFilter"> <?php
+echo $this->title[$alias];
+$valueSet = array();
+if ($this->fieldMetadata[$alias]['tpl'] === 'list') {
+    foreach ($sets[0] as $selectKey) {
+        if (!isset($this->filterParam['set'][$alias][$selectKey])) {
+            continue;
+        }
+        $valueSet[] = $this->filterParam['set'][$alias][$selectKey];
+    }
+    echo ' <span>(' . implode(', ', $valueSet) . ')' . '</span>';
+} elseif ($this->fieldMetadata[$alias]['tpl'] === 'range' || $this->fieldMetadata[$alias]['tpl'] === 'calendar') {
+    $data = current($sets);
+    echo ' <span>(' . _t('from') . ' '  . $data['from'] . ' ' . _t('to') . ' ' . $data['to']  .  ')' . '</span>';
+} else {
+    $notValueSet = array();
+    foreach ($sets as $set) {
+        if (isset($set['not'])) {
+            $notValueSet[] = $set['val'];
+        } else {
+            $valueSet[] = $set['val'];
+        }
+    }
+    echo ' <span>(' . implode(', ', $valueSet) . ')'
+          . ((!empty($notValueSet)) ? ', ' . _t('not') . ' (' . implode(', ', $notValueSet) . ')' : '') . '</span>';
+}
+?>
+          <span class="actions">
+              <a href="#filter-modal" class="edit filter-operation"  data-toggle="modal" data-original-title="<?= ucfirst(_t('edit')) ?>"></a>
+             <a class="delete" data-alias="<?= $alias ?>" data-original-title="<?= ucfirst(_t('delete')) ?>"></a>
+          </span>
+       </span>
+    <?php endforeach; ?>
+    </div>
+</div>
+<script type="text/javascript">
+$(window).load(function() {
+    /**
+     * auto unchecked on click and resend filter form
+     */
+    $('.actions > .delete').click(function(){
+    	alias = $(this).attr('data-alias');
+
+    	$checkbox = $('#field-'+alias);
+    	//console.log(alias+' -> '+$checkbox.prop('checked'));
+    	if ($checkbox.prop('checked') == true) {
+    		$checkbox.prop('checked', false);
+    	}
+    	sendFilterForm();
+	});
+});
+
+</script>
+<?php endif; ?>

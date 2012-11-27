@@ -1,0 +1,50 @@
+<?php if ($this->params['countData'] > 0) : ?>
+<table class="table table-striped table-bordered table-dash">
+<thead>
+    <tr>
+        <th width=25><input type="checkbox" name="key[]" value="all"  id="toggleAll"/></th>
+        <?php
+        foreach ($this->aliasSet as $alias) : ?>
+            <th><?= $this->title[$alias] ?></th>
+        <?php endforeach; ?>
+    </tr>
+</thead>
+<tbody id="checkboxes">
+    <?php
+    $i = 0;
+    foreach ($this->data as $rowKey => $row) :
+        $i++;
+    ?>
+        <tr class="toggleRow" data-line-number="<?= $i ?>">
+        <td><input id="checkbox<?= $i ?>" type="checkbox" name="key[<?= $rowKey ?>]" value="<?= $rowKey ?>"></td>
+<?php
+foreach ($this->aliasSet as $alias) {
+    $data = $row[$alias];
+    if (empty($data)) {
+        continue;
+    }
+    echo '<td>';
+    if (empty($this->metadata[Mms_Storage_Abstract::MD_FIELD][$alias]['tpl']) || $this->metadata[Mms_Storage_Abstract::MD_FIELD][$alias]['tpl'] == 'text') {
+        echo $data;
+    } else {
+        try {
+        echo $this->partial(
+           'datagrid/' . $this->metadata[Mms_Storage_Abstract::MD_FIELD][$alias]['tpl'] . '.phtml',
+            array(
+                'alias' => $alias,
+             	'data' => $row,
+                'metaData' => $this->metadata[Mms_Storage_Abstract::MD_FIELD][$alias],
+         ));
+        }catch(Exception $ex) {
+            echo $ex->getMessage();
+        }
+    }
+    echo ((isset($this->metadata[Mms_Storage_Abstract::MD_FIELD][$alias]['primary'])) ? vsprintf($operationBlock, array($row['id'], $data)) : '') . '</td>';
+}
+?>
+		</tr>
+	<?php endforeach; ?>
+</tbody>
+</table>
+
+<?php endif; ?>

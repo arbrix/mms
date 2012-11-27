@@ -1,0 +1,20 @@
+<td><ul>
+<?php 
+foreach ($this->fieldAliasSet as $alias) {
+    echo '<li>' . $this->entity[$alias] . '</li>';
+} 
+?>
+</ul>
+</td>
+    <?= $this->partial(
+           'block/control/field/' . (($this->fieldMetadata[$alias]['isChangeable'] === true)?$this->fieldMetadata[$alias]['tpl']:'lock') . '.phtml', 
+            array(
+                'inputId' => 'value1_' . $alias,
+             	'inputName' => 'form[' . $alias . ']',
+                'inputPlaceholder' => isset($this->fieldMetadata[$alias]['defaults'])?$this->fieldMetadata[$alias]['defaults']:'',
+                'inputValue' => $this->entity[$alias],
+                'selectSet' => $this->selectSet,
+                'alias' => $alias,
+            )
+        ); 
+    ?>

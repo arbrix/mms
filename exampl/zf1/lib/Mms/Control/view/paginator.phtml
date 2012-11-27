@@ -1,0 +1,51 @@
+<?php if ($this->params['countData'] > 0) : ?>
+<div class="bottom-navigation clearfix">
+<?php if ($this->paginator['page']['count'] > 1) : ?>
+   <div class="paginate">
+      <div class="paginator" id="shop-pagination"></div>
+      <div class="paginator_items"><?= _t('all')  . ': ' . $this->params['countData'] ?></div>
+      <div class="paginator_pages"><?= $this->paginator['page']['count'] . ' ' . _t('page') ?></div>
+   </div>
+<?php endif; ?>
+   <div class="control-group dash">
+     <label class="control-label inline" for="select01"><?= _t('Show on page') ?></label>
+     <select id="countOnPage"  name="countOnPage">
+         <?php for ($i = 1; $i < 5; $i++) {
+			$count = $i * Ik_Cms_Block_Control_Paginator::COUNT_ON_PAGE;
+	    	echo '<option value="' . $count . '"'
+	    	     . (($count == $this->paginator['countOnPage'])? 'selected="selected"' :'')
+	    	     . ' >' . $count . '</option>';
+		} ?>
+     </select>
+   </div>
+<script src="/js/paginator3000.js"></script>
+<script type="text/javascript">
+
+//Paginator(#idTag, #lastNum, #showNum, #selectNum, "") //'shop-pagination', 20, 15, 13, ""
+pag3 = new Paginator('shop-pagination', <?= $this->paginator['page']['last'] . ', '
+. $this->paginator['page']['range'] . ', ' . $this->paginator['page']['current'] . ', "/' . $this->params['inodePath'] ?>/p/page/");
+
+/**
+ * submit filter form by chenge count of switch page
+ */
+$('#countOnPage').change(function() {
+    var input = $('<input name="countOnPage" type="hidden" value="'+$('#countOnPage option:selected').val()+'">');
+    $(input).appendTo($('#filterForm'));
+    sendFilterForm();
+});
+$('.paginationSubmit').click(function() {
+	var link = $(this).attr('data-link')
+	, sendFilter = $('#user-sidebar > ul > .filter').hasClass('active');
+	//console.log(sendFilter);
+	if (sendFilter === false) {
+		$(this).attr('href', link);
+		return;
+	}
+	//console.log(link);
+	$('#filterForm')[0].setAttribute('action', link);
+	sendFilterForm();
+});
+</script>
+
+</div>
+<?php endif; ?>

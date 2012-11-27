@@ -1,0 +1,78 @@
+<?php
+class Mms_Control_Filter extends Mms_Control_Abstract
+{
+/******************************************************************************
+ * SYSTEM
+ ******************************************************************************/
+
+    public static $filterActive = false;
+    protected static $_postData;
+
+    protected $_requireData = array(
+        self::P_TITLE     => true,
+        self::P_PARAMS    => true,
+        self::P_METADATA    => true,
+    );
+
+
+    public static function getQuerySet($request)
+    {
+        $filter = $request->getParam('filter');
+        if (isset($filter['model'])) {
+            unset($filter['model']);
+        }
+        if (empty($filter)) {
+            return;
+        }
+        $where = array();
+        $currentKey = 0;
+        self::$_postData = $filter;
+        //restructure data for storage
+        foreach ($filter as $alias => $dataSet) {
+            $addNotSet = false;
+            foreach ($dataSet as $dataKey => $data) {
+                if (isset($data['not'])) {
+                    $addNotSet = true;
+                    $where[$alias][($currentKey+1)]['valueSet'][] = $data['val'];
+                    $where[$alias][($currentKey+1)]['logic'] = 'not';
+                } elseif (isset($data['val']) && !isset($data['not'])) {
+                    $where[$alias][$currentKey]['valueSet'][] = $data['val'];
+                } elseif (isset($data['from'])) {
+                    $where[$alias][$currentKey]['valueSet'] = $data;
+                    $where[$alias][$currentKey]['type'] = 'between';
+                } else {
+                    $where[$alias][$currentKey]['valueSet'] = $data;
+                }
+                if ($addNotSet === true) {
+                    $currentKey += 2;
+                } else {
+                    $currentKey++;
+                }
+            }
+
+        }
+        static::$filterActive = true;
+        return array('where' => $where);
+    }
+
+    protected function _dispatch()
+    {
+        $this->getView()->postData = self::$_postData;
+    }
+
+
+/******************************************************************************
+ * INIT REQUIRED DATA
+ ******************************************************************************/
+
+    public function setConditions($conditions)
+    {
+        $this->getView()->conditions = $conditions;
+    }
+
+    public function setSelectSet($set)
+    {
+        $this->getView()->selectSet = $set;
+    }
+
+}

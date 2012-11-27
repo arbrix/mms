@@ -1,0 +1,8 @@
+Model Management systems
+
+Useful for building interface for control and update service's data
+
+include lib/Mms to your project
+describe application modes as in example
+
+create instace of manager (Mms_Manager) and call getInterface/
