@@ -1,0 +1,21 @@
+#file named .gitignore
+code_zf1/.idea/*
+code_zf1/public/files/*
+code_zf1/public/img/*
+code_zf1/lib/Zend/*
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.jpg
+*.eot
+*.svg
+*.ttf
+*.woff
+*.mo
+*.rar
+*.ini
+*.kwm
+*.crt
+*.txt
+*.cer

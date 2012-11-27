@@ -39,10 +39,6 @@ class Ik_Mongo_Connection extends Mongo
         if ($server === null) {
             $server = self::$defaultConnServer;
         }
-        if (!isset($options['persist'])) {
-            $options['persist'] = 'default';
-        }
-        //Zend_Debug::dump($options, __METHOD__);
         self::setDefaultConn(new self($server, $options));
         return self::$_defaultConn;
     }
