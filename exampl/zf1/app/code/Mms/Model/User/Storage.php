@@ -1,5 +1,5 @@
 <?php
-class Mms_Model_User_Storage extends Mms_Storage_Mongo
+class Mms_Model_User_Storage extends Mms_Storage_Collection
 {
     protected static $_metadata = array(
         self::MD_NAME => 'user',
@@ -12,14 +12,15 @@ class Mms_Model_User_Storage extends Mms_Storage_Mongo
             'type' => 'string',
             'tpl' => 'text',
             'condition' => array(),
-            'isChangeable' => false,
+            'isChangeable' => true,
         )),
         self::MD_FIELD => array(
             'id' => array(
                 'title' => array(
                     'en' => 'Id'
                 ),
-                'type' => 'int',
+                'type' => 'mongoId',
+                'isChangeable' => false,
             ),
             'name' => array(
                 'title' => array(
@@ -43,17 +44,17 @@ class Mms_Model_User_Storage extends Mms_Storage_Mongo
             'phone'  => User::P_PHONE,
             'address' => User::P_ADDRESS,
         ),
-        self::MD_CONDITION => array('default' => array(
-            'correlation' => array(
-                'id',
-                'name',
-                'phone',
-                'address',
-            ),
-        )),
         self::MD_OPERATION => array('default' => array(
             Mms_Storage_Abstract::OPERATION_CREATE => array(),
-            Mms_Storage_Abstract::OPERATION_UPDATE => array(),
+            Mms_Storage_Abstract::OPERATION_UPDATE => array(
+                'processData' => array(
+                    'field' => array(
+                        'name',
+                        'phone',
+                        'address',
+                    )
+                ),
+            ),
             Mms_Storage_Abstract::OPERATION_DELETE => array(),
             Mms_Storage_Abstract::OPERATION_FILTER => array(),
         )),
@@ -68,7 +69,7 @@ class Mms_Model_User_Storage extends Mms_Storage_Mongo
                 'address',
             ),
             'operations' => array(
-                'each' => array(),
+                'each' => array(Mms_Storage_Abstract::OPERATION_UPDATE),
                 'all' => array(),
             ),
         )),
@@ -82,9 +83,8 @@ class Mms_Model_User_Storage extends Mms_Storage_Mongo
             'condition' => array(),
         )),
         self::MD_CONTROL_FORM => array('default' => array(
-            'single' => array(
+            'update' => array(
                 'alias' => array(
-                    'id',
                     'name',
                     'phone',
                     'address',

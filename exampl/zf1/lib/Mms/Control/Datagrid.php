@@ -27,6 +27,9 @@ class Mms_Control_Datagrid extends Mms_Control_Abstract
 
         $view = $this->getView();
         $view->aliasSet = $dataGrid['alias'];
+        $view->operationSet = (isset($dataGrid['operations']) && isset($dataGrid['operations']['each']))
+            ? $dataGrid['operations']['each']
+            : array();
         $view->beginCounterValue = ($paginator['page'] -1) * $paginator['count'];
     }
 

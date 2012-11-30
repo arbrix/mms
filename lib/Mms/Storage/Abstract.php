@@ -14,15 +14,14 @@ abstract class Mms_Storage_Abstract
         if (isset($options['request'])) {
             $this->setRequest($options['request']);
         }
+        $this->_getProfiledMetadata();
         $this->_initPath();
         $this->_initFieldsSet();
         $this->_fillField();
-        $this->_getProfiledMetadata();
         $this->_initAdapter();
         if (isset($options['select'])) {
-            $this->_initSelect($options['select']);
+            $this->_initQuery($options['select']);
         }
-
     }
 
     protected function _initPath() {}
@@ -134,20 +133,20 @@ abstract class Mms_Storage_Abstract
 ******************************************************************************/
 
     /**
-     * @var Mms_Storage_Select
+     * @var Mms_Storage_Query
      */
-    protected $_select;
+    protected $_query;
 
-    protected function _initSelect($options = array())
+    protected function _initQuery($options = array())
     {
-        $this->_select = new Mms_Storage_Select($options);
+        $this->_query = new Mms_Storage_Query($options);
         //preparing query from metadata
         $preset = self::getMetadata(Mms_Storage_Abstract::MD_PRESET);
-        if (!empty($preset[Mms_Storage_Select::QS_ORDER])) {
-            $this->_select->setQuerySet(array(Mms_Storage_Select::QS_ORDER => $preset[Mms_Storage_Select::QS_ORDER]));
+        if (!empty($preset[Mms_Storage_Query::QS_ORDER])) {
+            $this->_query->setQueryDataSet(array(Mms_Storage_Query::QS_ORDER => $preset[Mms_Storage_Query::QS_ORDER]));
         }
-        if (!empty($preset[Mms_Storage_Select::QS_WHERE])) {
-            $this->_select->addToWhere($preset[Mms_Storage_Select::QS_WHERE]);
+        if (!empty($preset[Mms_Storage_Query::QS_WHERE])) {
+            $this->_query->addToWhere($preset[Mms_Storage_Query::QS_WHERE]);
         }
 
 
@@ -159,19 +158,19 @@ abstract class Mms_Storage_Abstract
                 continue;
             }
             $value = self::typeConversion($alias, $request->getParam($alias));
-            $this->_select->addToWhere(array($alias => array(array(
+            $this->_query->addToWhere(array($alias => array(array(
                 'valueSet' => array($value),
                 'type' => 'equal'
             ))), true);
         }
     }
 
-    protected function _getSelect()
+    protected function _getQuery()
     {
-        if ($this->_select === null) {
-            $this->_initSelect();
+        if ($this->_query === null) {
+            $this->_initQuery();
         }
-        return $this->_select;
+        return $this->_query;
     }
 
     public static $sqlWhereConditionPatterns = array(
@@ -199,7 +198,8 @@ abstract class Mms_Storage_Abstract
 
     protected function _preQuery(& $where)
     {
-        foreach (static::$_metadata['virtual'] as $alias => $params) {
+        $virtualSet = self::getMetadata(self::MD_VIRTUAL);
+        foreach ($virtualSet as $alias => $params) {
             if (!isset($where[$alias])) {
                 continue;
             }
@@ -244,7 +244,6 @@ abstract class Mms_Storage_Abstract
     const MD_CONTROL_FILTER    = 'filter';
     const MD_CONTROL_DATAGRID  = 'datagrid';
     const MD_CONTROL_FORM      = 'form';
-    const MD_CONDITION = 'condition';
     const MD_OPERATION = 'operation';
     const MD_SPEC_ENTITY  = 'specEntity';
     const MD_SPEC_STORAGE = 'specStorage';
@@ -275,7 +274,7 @@ abstract class Mms_Storage_Abstract
         } elseif (isset(static::$_metadata[$key])) {
             return static::$_metadata[$key];
         }
-        return null;
+        return array();
     }
 
     protected function _getProfiledMetadata()
@@ -287,6 +286,8 @@ abstract class Mms_Storage_Abstract
                     static::$_metadata[$key] = static::$_metadata[$key][$profile];
                 } elseif (isset(static::$_metadata[$key]['default'])) {
                     static::$_metadata[$key] = static::$_metadata[$key]['default'];
+                } else {
+                    unset(static::$_metadata[$key]);
                 }
             }
         }
@@ -370,14 +371,12 @@ abstract class Mms_Storage_Abstract
         }
         $entityClass = $this->_getEntityClass();
 
-        $formData = $request->getParam('form');
-        if (!isset($formData['id'])) {
-            throw new Mms_Storage_Exception(_t('Id need to be defined'));
-        }
+        $formData = $request->getParam('update');
 
-        $specificEntity = $this->_getEntityForUpdate($formData['id']);
+        $specificEntityId = $request->getParam('id');
+        $specificEntity = $this->_getEntityForUpdate($specificEntityId);
         if ($specificEntity == null) {
-            throw new Mms_Storage_Exception(_t('Account with id ' . $formData['id'] . ' not found'));
+            throw new Mms_Storage_Exception(_t(self::getMetadata(self::MD_SPEC_ENTITY) . ' entity with id ' . $specificEntityId . ' not found'));
         }
 
         $entity = new $entityClass(array(
@@ -390,14 +389,28 @@ abstract class Mms_Storage_Abstract
         } catch (Mms_Entity_Exception $ex) {
             throw new Mms_Storage_Exception($ex->getMessage());
         }
-
         if (!empty($data)) {
             $entity->setData($data);
             $entity->save();
         }
     }
 
+    protected function _operationCreate(Zend_Controller_Request_Http $request, $params = null)
+    {
+        $operationParams = self::getMetadata(self::MD_OPERATION);
+        if (!isset($operationParams[self::OPERATION_CREATE]['processData'])) {
+            throw new Mms_Storage_Exception(_t('This operation required configure: processData'));
+        }
+        $formData = $request->getParam('form');
+        foreach ($operationParams[self::OPERATION_CREATE]['processData']['field'] as $alias) {
+            $formData[$alias] = self::typeConversion($alias, $formData[$alias]);
+        }
+        $specificEntity =  $this->_getNewEntity($formData);
+        $specificEntity->save();
+    }
+
     abstract protected function _getEntityForUpdate($id);
+    abstract protected function _getNewEntity($data);
 
 /******************************************************************************
  * HELPERS
@@ -541,8 +554,8 @@ abstract class Mms_Storage_Abstract
     protected function _filterData(Mms_Entity_Abstract $entity, array $array, $options)
     {
         $data = array();
-        $virtualFields = self::getMetaData(Mms_Storage_Abstract::MD_VIRTUAL);
-        $fieldsData =  self::getMetaData(Mms_Storage_Abstract::MD_FIELD) + $virtualFields;
+        $virtualFields = self::getMetadata(Mms_Storage_Abstract::MD_VIRTUAL);
+        $fieldsData =  self::getMetadata(Mms_Storage_Abstract::MD_FIELD) + $virtualFields;
         $entityData = $entity->getData();
         foreach ($options['field'] as $alias) {
             if (!isset($array[$alias])) {
@@ -560,7 +573,7 @@ abstract class Mms_Storage_Abstract
                 $this->_processValidate($value, $fieldsData['field'][$alias]['validators']);
             }
             if ($fieldType == 'field') {
-                if ($entityData[$alias] == $value) {
+                if (isset($entityData[$alias]) && $entityData[$alias] == $value) {
                     continue;
                 }
             }

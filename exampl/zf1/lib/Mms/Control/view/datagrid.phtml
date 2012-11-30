@@ -1,12 +1,27 @@
-<?php if ($this->params['countData'] > 0) : ?>
+<?php
+if ($this->params['countData'] > 0) :
+    $operationBlock = '<ul class="unstyled">' . PHP_EOL;
+    foreach ($this->operationSet as $operationAlias) {
+        $operationBlock .= '<li><a title="'
+            . $this->title[$operationAlias] . '" href="'
+            . $this->url(array('model' => $this->params['model'], Mms_Manager::C_FORM => Mms_Control_Form::TYPE_UPDATE))
+            . '/id/%1$s" >' . $this->title[$operationAlias] . '</a></li>' . PHP_EOL;
+    }
+    $operationBlock .= '</ul>' . PHP_EOL;
+?>
 <table class="table table-striped table-bordered table-dash">
 <thead>
     <tr>
         <th width=25><input type="checkbox" name="key[]" value="all"  id="toggleAll"/></th>
         <?php
-        foreach ($this->aliasSet as $alias) : ?>
-            <th><?= $this->title[$alias] ?></th>
-        <?php endforeach; ?>
+        foreach ($this->aliasSet as $alias) {
+            echo '<th>' . $this->title[$alias] . '</th>';
+        }
+        if ($operationBlock != '') {
+            echo '<th>' . _t('Operation') . '</th>';
+        }
+        ?>
+
     </tr>
 </thead>
 <tbody id="checkboxes">
@@ -20,7 +35,8 @@
 <?php
 foreach ($this->aliasSet as $alias) {
     $data = $row[$alias];
-    if (empty($data)) {
+    if (empty($data) && $data != '0') {
+        echo '<td></td>';
         continue;
     }
     echo '<td>';
@@ -39,11 +55,14 @@ foreach ($this->aliasSet as $alias) {
             echo $ex->getMessage();
         }
     }
-    echo ((isset($this->metadata[Mms_Storage_Abstract::MD_FIELD][$alias]['primary'])) ? vsprintf($operationBlock, array($row['id'], $data)) : '') . '</td>';
+    echo '</td>' . PHP_EOL;
+}
+if ($operationBlock != '') {
+    echo '<td>' . vsprintf($operationBlock, array($row['id'])) . '</td>' . PHP_EOL;
 }
 ?>
-		</tr>
-	<?php endforeach; ?>
+        </tr>
+    <?php endforeach; ?>
 </tbody>
 </table>
 

@@ -8,8 +8,9 @@ class IndexController extends Zend_Controller_Action
 
     public function controlAction()
     {
-        $model = $this->_getParam('model', 'order');
-        $manager = new Mms_Manager(array('storageAlias' => $model, 'request' => $this->getRequest()));
+        $request = $this->getRequest();
+        $model = $request->getParam('model', 'order');
+        $manager = new Mms_Manager(array('storageAlias' => $model, 'request' => $request, 'params' => $request->getParams()));
         $this->view->content = $manager->generateInterface();
     }
 }

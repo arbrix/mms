@@ -1,0 +1,28 @@
+<form action="" method="post" class="form-horizontal" id="createForm">
+    <input type="hidden" name="operation" value="<?= Mms_Storage_Abstract::OPERATION_CREATE ?>" />
+    <?php foreach ($this->aliasSet as $alias) : ?>
+    <div class="control-group">
+        <label for="element_<?= $alias ?>" class="control-label"><?= ucfirst(($this->title[$alias]))?></label>
+        <div class="controls">
+            <?= $this->partial(
+                   'field/' . $this->fieldMetadata[$alias]['tpl'] . '.phtml',
+                    array(
+                        'id' => 'value1_' . $alias,
+                        'name' => 'form[' . $alias . ']',
+                        'placeholder' => isset($this->fieldMetadata[$alias]['default'])
+                            ? $this->fieldMetadata[$alias]['default']
+                            : '',
+                        'field' => isset($this->post[$alias]) ? $this->post[$alias] : '',
+                        'valueSet' => $this->valueSet,
+                        'alias' => $alias,
+                    )
+                );
+            ?>
+        </div>
+    </div>
+    <?php endforeach; ?>
+    <div class="actions pagination-centered">
+        <button type="reset" class="btn btn-danger"><?= _t('Cancel') ?></button>
+        <button type="submit" class="btn btn-primary"><?= _t('Add') ?></button>
+    </div>
+</form>

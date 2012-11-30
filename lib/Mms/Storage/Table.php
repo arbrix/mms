@@ -1,5 +1,5 @@
 <?php
-abstract class Mms_Storage_Mysql extends Mms_Storage_Abstract
+abstract class Mms_Storage_Table extends Mms_Storage_Abstract
 {
 /******************************************************************************
 * ENTITY
@@ -7,28 +7,28 @@ abstract class Mms_Storage_Mysql extends Mms_Storage_Abstract
 
     public function getEntitiesCount()
     {
-        $select = $this->_getSelect();
+        $query = $this->_getQuery();
         if ($this->_entitiesCount != null) {
             return $this->_entitiesCount;
         }
 
-        $where = $select->getQuerySet(Mms_Storage_Select::QS_WHERE);
+        $where = $query->getQueryDataSet(Mms_Storage_Query::QS_WHERE);
         if (!empty($where)) {
             $where = $this->_buildWhere($where);
         } else {
             $where = array();
         }
         $adapter = $this->getAdapter();
-        $select = $adapter->select()
+        $query = $adapter->select()
                           ->from(self::getMetadata(self::MD_NAME), 'COUNT(id) as count');
-        $this->_entitiesCount = (int) $adapter->fetchRow($this->_buildSelect($select, $where))->count;
+        $this->_entitiesCount = (int) $adapter->fetchRow($this->_buildSelect($query, $where))->count;
         return $this->_entitiesCount;
     }
 
     protected function _loadData($withLimits = true, $withFields = false)
     {
-        $select = $this->_getSelect();
-        $where = $select->getQuerySet(Mms_Storage_Select::QS_WHERE);
+        $query = $this->_getQuery();
+        $where = $query->getQueryDataSet(Mms_Storage_Query::QS_WHERE);
         if (isset($where)) {
             $where = $this->_buildWhere($where);
         } else {
@@ -37,12 +37,12 @@ abstract class Mms_Storage_Mysql extends Mms_Storage_Abstract
         $adapter = $this->getAdapter();
         $limit = array();
         if ($withLimits === true) {
-            $limit = $select->getLimitSet($this->getRequest());
+            $limit = $query->getLimitSet($this->getRequest());
         }
-        $order = $select->getQuerySet(Mms_Storage_Select::QS_ORDER);
+        $order = $query->getQueryDataSet(Mms_Storage_Query::QS_ORDER);
         $newFieldSet = array();
         if ($withFields ===  true) {
-            $fieldSet = $select->getQuerySet(Mms_Storage_Select::QS_FIELD);
+            $fieldSet = $query->getQueryDataSet(Mms_Storage_Query::QS_FIELD);
             $fieldSetKeys = array_keys($fieldSet);
             $virtualSet = self::getMetadata(self::MD_VIRTUAL);
             foreach ($fieldSetKeys as $keyOrder => $key) {
@@ -60,12 +60,13 @@ abstract class Mms_Storage_Mysql extends Mms_Storage_Abstract
             $select = $adapter->select()
                                 ->from(self::getMetadata(self::MD_NAME));
         }
+
         $this->_dataSet = $adapter->fetchAll($this->_buildSelect($select, $where, $limit, $order));
     }
 
     public function getEntitySet()
     {
-        $select = $this->_getSelect();
+        $select = $this->_getQuery();
 
         if ($this->_entitiesCount == null) {
             $this->getEntitiesCount($select);
@@ -97,7 +98,10 @@ abstract class Mms_Storage_Mysql extends Mms_Storage_Abstract
                 $pathSet[$fieldAlias] = $fieldAlias;
             }
         }
-        $dataSet = $this->_dataSet->toArray();
+        if (!empty($this->_dataSet)) {
+            $dataSet = $this->_dataSet->toArray();
+        }
+
         return $pathSet;
     }
 
@@ -146,6 +150,7 @@ abstract class Mms_Storage_Mysql extends Mms_Storage_Abstract
             }
             $select->order($orderParams);
         }
+        //Zend_Debug::dump($select->assemble());
         return $select;
     }
 
@@ -187,7 +192,12 @@ abstract class Mms_Storage_Mysql extends Mms_Storage_Abstract
                 $countValues = count($set['valueSet']);
 
                 if (!isset($set['type']) || !isset(static::$sqlWhereConditionPatterns[$set['type']])) {
-                    $set['type'] = 'like'; // any kind of sql condition
+                    $fieldType = static::$_metadata[self::MD_FIELD][$alias]['type'];
+                    if ($fieldType == 'int' || $fieldType == 'float' ) {
+                        $set['type'] = 'equal'; // any kind of sql condition
+                    } else {
+                        $set['type'] = 'like'; // any kind of sql condition
+                    }
                 }
 
                 if ($countValues == 0) {
@@ -241,6 +251,14 @@ abstract class Mms_Storage_Mysql extends Mms_Storage_Abstract
     {
         $table = Ik_Db::getTable(self::getMetadata(self::MD_SPEC_STORAGE));
         return $table->fetchRow($table->select()->forUpdate()->where('id = ', $id));
+    }
+
+    /**
+     * @return Zend_Db_Table_Row_Abstract
+     */
+    protected function _getNewEntity($data)
+    {
+        return Ik_Db::getTable(self::getMetadata(self::MD_SPEC_STORAGE))->createRow();
     }
 
 /******************************************************************************

@@ -1,5 +1,5 @@
 <?php
-class Mms_Model_Order_Storage extends Mms_Storage_Mysql
+class Mms_Model_Order_Storage extends Mms_Storage_Table
 {
     protected static $_metadata = array(
         self::MD_NAME => 'order',
@@ -30,6 +30,7 @@ class Mms_Model_Order_Storage extends Mms_Storage_Mysql
                 'title' => array(
                     'en' => 'Amount',
                 ),
+                'type' => 'float'
             ),
             'created' => array(
                 'title' => array(
@@ -40,6 +41,7 @@ class Mms_Model_Order_Storage extends Mms_Storage_Mysql
                 'title' => array(
                      'en' => 'State',
                 ),
+                'type' => 'int'
             ),
         ),
         self::MD_PATH => array(
@@ -49,15 +51,6 @@ class Mms_Model_Order_Storage extends Mms_Storage_Mysql
             'created' => Order::P_CREATED,
             'state'   => Order::P_STATE,
         ),
-        self::MD_CONDITION => array('default' => array(
-            'correlation' => array(
-                'id',
-                'userId',
-                'amount',
-                'created',
-                'state',
-            ),
-        )),
         self::MD_OPERATION => array('default' => array(
             Mms_Storage_Abstract::OPERATION_CREATE => array(),
             Mms_Storage_Abstract::OPERATION_UPDATE => array(),
@@ -70,9 +63,11 @@ class Mms_Model_Order_Storage extends Mms_Storage_Mysql
         )),
         self::MD_CONTROL_DATAGRID => array('default' => array(
             'alias' => array(
+                'id',
                 'userId',
                 'amount',
                 'created',
+                'state',
             ),
             'operations' => array(
                 'each' => array(

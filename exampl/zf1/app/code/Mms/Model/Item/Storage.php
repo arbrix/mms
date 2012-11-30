@@ -1,5 +1,5 @@
 <?php
-class Mms_Model_Item_Storage extends Mms_Storage_Mongo
+class Mms_Model_Item_Storage extends Mms_Storage_Collection
 {
     protected static $_metadata = array(
         self::MD_NAME => 'item',
@@ -49,17 +49,17 @@ class Mms_Model_Item_Storage extends Mms_Storage_Mongo
             'title' => Item::P_TITLE,
             'regex'   => Item::P_REGEX,
         ),
-        self::MD_CONDITION => array('default' => array(
-            'correlation' => array(
-                'id',
-                'alias',
-                'title',
-                'price',
-                'regex',
-            ),
-        )),
         self::MD_OPERATION => array('default' => array(
-            Mms_Storage_Abstract::OPERATION_CREATE => array(),
+            Mms_Storage_Abstract::OPERATION_CREATE => array(
+                'processData' => array(
+                    'field' => array(
+                        'alias',
+                        'title',
+                        'price',
+                        'regex'
+                    )
+                ),
+            ),
             Mms_Storage_Abstract::OPERATION_UPDATE => array(),
             Mms_Storage_Abstract::OPERATION_DELETE => array(),
             Mms_Storage_Abstract::OPERATION_FILTER => array(),
@@ -87,11 +87,20 @@ class Mms_Model_Item_Storage extends Mms_Storage_Mongo
             'condition' => array(),
         )),
         self::MD_CONTROL_FORM => array('default' => array(
+            'create' => array(
+                'alias' => array(
+                    'alias',
+                    'title',
+                    'price',
+                    'regex',
+                ),
+            ),
             'single' => array(
                 'alias' => array(
                     'alias',
                     'title',
                     'price',
+                    'regex',
                 ),
             ),
         )),

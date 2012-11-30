@@ -1,5 +1,5 @@
 <?php
-class Mms_Storage_Select
+class Mms_Storage_Query
 {
 /******************************************************************************
 * SYSTEM
@@ -8,7 +8,7 @@ class Mms_Storage_Select
     public function __construct($options = array())
     {
         if (isset($options['querySet'])) {
-            $this->setQuerySet($options['querySet']);
+            $this->setQueryDataSet($options['querySet']);
         }
     }
 
@@ -16,7 +16,7 @@ class Mms_Storage_Select
     {
         $string = '';
         if (null === $array) {
-            $array = $this->_querySet;
+            $array = $this->_queryDataSet;
         }
         foreach ($array as $key => $value) {
             if (is_array($value)) {
@@ -32,7 +32,7 @@ class Mms_Storage_Select
 * QUERY
 ******************************************************************************/
 
-    protected $_querySet = array(
+    protected $_queryDataSet = array(
         self::QS_WHERE => array(),
         self::QS_LIMIT => array(),
         self::QS_ORDER => array(),
@@ -46,20 +46,20 @@ class Mms_Storage_Select
     const QS_ORDER = 'order';
     const QS_FIELD = 'field';
 
-    public function setQuerySet($querySet)
+    public function setQueryDataSet($querySet)
     {
         foreach ($querySet as $key => $options) {
-            $options += $this->_querySet[$key];
-            $this->_querySet[$key] = $options;
+            $options += $this->_queryDataSet[$key];
+            $this->_queryDataSet[$key] = $options;
         }
     }
 
-    public function getQuerySet($key = null)
+    public function getQueryDataSet($key = null)
     {
         if ($key === null) {
-            return $this->_querySet;
-        } elseif (isset($this->_querySet[$key])) {
-            return $this->_querySet[$key];
+            return $this->_queryDataSet;
+        } elseif (isset($this->_queryDataSet[$key])) {
+            return $this->_queryDataSet[$key];
         }
         return null;
     }
@@ -78,39 +78,39 @@ class Mms_Storage_Select
         foreach ($where as $alias => $sets) {
             if ($replace === true) { // replace only existing field, not fool replace
                 foreach ($sets as $keySet => $set) {
-                    if (!isset($this->_querySet[self::QS_WHERE][$alias][$keySet])) {
-                        $this->_querySet[self::QS_WHERE][$alias][$keySet] = $set;
+                    if (!isset($this->_queryDataSet[self::QS_WHERE][$alias][$keySet])) {
+                        $this->_queryDataSet[self::QS_WHERE][$alias][$keySet] = $set;
                         continue;
                     }
                     if (isset($set['valueSet'])) {
-                        $this->_querySet[self::QS_WHERE][$alias][$keySet]['valueSet'] = $set['valueSet'];
+                        $this->_queryDataSet[self::QS_WHERE][$alias][$keySet]['valueSet'] = $set['valueSet'];
                     }
                     if (isset($set['type'])) {
-                        $this->_querySet[self::QS_WHERE][$alias][$keySet]['type'] = $set['type'];
+                        $this->_queryDataSet[self::QS_WHERE][$alias][$keySet]['type'] = $set['type'];
                     }
                     if (isset($set['logic'])) {
-                        $this->_querySet[self::QS_WHERE][$alias][$keySet]['logic'] = $set['logic'];
+                        $this->_queryDataSet[self::QS_WHERE][$alias][$keySet]['logic'] = $set['logic'];
                     }
                 }
                 return;
             }
-            if (isset($this->_querySet[self::QS_WHERE][$alias])) {
-                $this->_querySet[self::QS_WHERE][$alias] = array_merge($this->_querySet['where'][$alias], $sets);
+            if (isset($this->_queryDataSet[self::QS_WHERE][$alias])) {
+                $this->_queryDataSet[self::QS_WHERE][$alias] = array_merge($this->_queryDataSet['where'][$alias], $sets);
             } else {
-                $this->_querySet[self::QS_WHERE][$alias] = $sets;
+                $this->_queryDataSet[self::QS_WHERE][$alias] = $sets;
             }
         }
     }
 
     public function getLimitSet(Zend_Controller_Request_Http $request)
     {
-        if (empty($this->_querySet['limit'])) {
+        if (empty($this->_queryDataSet['limit'])) {
             $limit = Mms_Control_Paginator::getLimitSet($request);
-            $limit += $this->_querySet;
-            $this->_querySet = $limit;
+            $limit += $this->_queryDataSet;
+            $this->_queryDataSet = $limit;
 
         }
-        return $this->_querySet['limit'];
+        return $this->_queryDataSet['limit'];
     }
 
 /******************************************************************************

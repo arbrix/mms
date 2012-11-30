@@ -97,39 +97,29 @@ abstract class Mms_Entity_Abstract
     public function getData()
     {
         if ($this->_data === null) {
-            $storageClass = $this->getStorageClass();
-            $pathSet = $storageClass::getPathSet();
-            $fieldsData =  $storageClass::getMetaData(Mms_Storage_Abstract::MD_FIELD);
-            foreach ($fieldsData as $alias) {
-                if (isset($this->_specificEntity->{$pathSet[$alias]})) {
-                    $this->_data[$alias] = $this->_specificEntity->{$pathSet[$alias]};
-                }
-            }
+            $this->_data = $this->_loadData();
         }
         return $this->_data;
     }
+
+    abstract protected function _loadData();
 
     public function setData($data)
     {
         $data += $this->_data;
         $this->_changed = true;
         $this->_data = $data;
+        Zend_Debug::dump($this->_data);
     }
 
     public function save()
     {
         if ($this->_changed === true) {
-            $storageClass = $this->getStorageClass();
-            $pathSet = $storageClass::getPath();
-            $fieldSet = $storageClass::getMetadata(Mms_Storage_Abstract::MD_FIELD);
-            foreach ($this->_data as $alias => $value) {
-                if ($fieldSet[$alias]['isChangeable'] === true) {
-                    $this->_specificEntity->{$pathSet[$alias]} = $value;
-                }
-            }
-            $this->_specificEntity->save();
+            $this->_saveData();
         }
     }
+
+    abstract protected function _saveData();
 
 /******************************************************************************
 * END.

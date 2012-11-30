@@ -1,59 +1,71 @@
-<?php if (count($this->postData) > 0) : ?>
-<div class="applied-filters clearfix" id="spanFilterBlock">
-    <div class="title"><?= _t('Filters was applied') ?>:</div>
-    <div class="filters" id="spanFilterSet">
-    <?php foreach ($this->postData as $alias => $sets) : ?>
-       <span class="item" id="<?= $alias ?>SpanFilter"> <?php
-echo $this->title[$alias];
-$valueSet = array();
-if ($this->fieldMetadata[$alias]['tpl'] === 'list') {
-    foreach ($sets[0] as $selectKey) {
-        if (!isset($this->filterParam['set'][$alias][$selectKey])) {
-            continue;
-        }
-        $valueSet[] = $this->filterParam['set'][$alias][$selectKey];
-    }
-    echo ' <span>(' . implode(', ', $valueSet) . ')' . '</span>';
-} elseif ($this->fieldMetadata[$alias]['tpl'] === 'range' || $this->fieldMetadata[$alias]['tpl'] === 'calendar') {
-    $data = current($sets);
-    echo ' <span>(' . _t('from') . ' '  . $data['from'] . ' ' . _t('to') . ' ' . $data['to']  .  ')' . '</span>';
-} else {
-    $notValueSet = array();
-    foreach ($sets as $set) {
-        if (isset($set['not'])) {
-            $notValueSet[] = $set['val'];
-        } else {
-            $valueSet[] = $set['val'];
-        }
-    }
-    echo ' <span>(' . implode(', ', $valueSet) . ')'
-          . ((!empty($notValueSet)) ? ', ' . _t('not') . ' (' . implode(', ', $notValueSet) . ')' : '') . '</span>';
-}
-?>
-          <span class="actions">
-              <a href="#filter-modal" class="edit filter-operation"  data-toggle="modal" data-original-title="<?= ucfirst(_t('edit')) ?>"></a>
-             <a class="delete" data-alias="<?= $alias ?>" data-original-title="<?= ucfirst(_t('delete')) ?>"></a>
-          </span>
-       </span>
-    <?php endforeach; ?>
+<h4><?= _t('Filter') ?></h4>
+<form class="form-inline" id="filterForm" method="post">
+    <?php foreach ($this->filterParams['alias'] as $fieldAlias) : ?>
+    <div class="row">
+        <span class="span1"></span>
+        <span class="span2"><?= $this->titleSet[$fieldAlias] ?></span>
+        <span class="span2">
+            <select class="input-small" id="query<?= $fieldAlias ?>" name="filter[<?= $fieldAlias ?>][0][not]" data-original-title="<?= _t('Excluded from the data') ?>">
+                <option <?= ((!isset($this->postData[$fieldAlias]) || ($this->postData[$fieldAlias][0]['not'] == '0')) ? 'selected="selected"' : '' ) ?> value="0">Equal</option>
+                <option <?= ((isset($this->postData[$fieldAlias]) && ($this->postData[$fieldAlias][0]['not'] == '1')) ? 'selected="selected"' : '' ) ?> value="1">Not equal</option>
+            </select>
+        </span>
+        <span class="span3">
+            <input
+                id="inputField<?= $fieldAlias ?>"
+                class="input-medium filterField"
+                type="text"
+                name="filter[<?= $fieldAlias ?>][0][val]"
+                data-alias="<?= $fieldAlias ?>"
+                value="<?= ((isset($this->postData[$fieldAlias]) && isset($this->postData[$fieldAlias][0]['val'])) ? $this->postData[$fieldAlias][0]['val'] : '' ) ?>"
+            />
+        </span>
     </div>
-</div>
+    <?php endforeach; ?>
+    <div class="actions pagination-centered">
+        <button id="filter_clear" type="reset" class="btn btn-danger"><?= _t('Cancel') ?></button>
+        <button id="filter_submit" class="btn btn-primary"  disabled="disabled"><?= _t('Filter') ?></button>
+    </div>
+</form>
+<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
 <script type="text/javascript">
-$(window).load(function() {
-    /**
-     * auto unchecked on click and resend filter form
-     */
-    $('.actions > .delete').click(function(){
-    	alias = $(this).attr('data-alias');
-
-    	$checkbox = $('#field-'+alias);
-    	//console.log(alias+' -> '+$checkbox.prop('checked'));
-    	if ($checkbox.prop('checked') == true) {
-    		$checkbox.prop('checked', false);
-    	}
-    	sendFilterForm();
-	});
-});
-
+    var control = {
+        sendForm: function(fieldsTag, formTag) {
+            $(fieldsTag).each(function() {
+                var field = $(this),
+                    alias = field.attr('data-alias'),
+                    value = field.val();
+                if (value.length == 0) {
+                    $('#query'+alias).attr('disabled', true);
+                    field.attr('disabled', true);
+                }
+            });
+            $(formTag).submit();
+        },
+        clearFilter: function() {
+            var reload = false;
+            $('.filterField').each(function() {
+                var field = $(this),
+                    value = field.val();
+                if (value.length > 0) {
+                    field.val('');
+                    reload = true;
+                }
+            });
+            if (reload) control.sendForm('.filterField', '#filterForm');
+        }
+    };
+    $(function(){
+        $('.filterField').on('keyup', function(){
+            var button = $('#filter_submit');
+            if (button.attr('disabled') == undefined) return;
+            button.attr('disabled', false);
+        });
+        $('#filter_submit').on('click', function() {
+            control.sendForm('.filterField', '#filterForm');
+        });
+        $('#filter_clear').on('click', function() {
+            control.clearFilter();
+        });
+    });
 </script>
-<?php endif; ?>

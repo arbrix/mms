@@ -1,5 +1,5 @@
 <?php
-abstract class Mms_Storage_Mongo extends Mms_Storage_Abstract
+abstract class Mms_Storage_Collection extends Mms_Storage_Abstract
 {
 
 /******************************************************************************
@@ -76,9 +76,9 @@ abstract class Mms_Storage_Mongo extends Mms_Storage_Abstract
 
     protected function _selectData(& $dataSet, $withLimits = true, $withFields = false)
     {
-        $select = $this->_getSelect();
+        $query = $this->_getQuery();
         if ($this->_entitiesCount == null) {
-            $this->getEntitiesCount($select);
+            $this->getEntitiesCount($query);
         }
         if ($this->_entitiesCount == 0 || count($this->_dataSet) != $this->_entitiesCount) {
             $this->_loadData($withLimits, $withFields);
@@ -114,14 +114,14 @@ abstract class Mms_Storage_Mongo extends Mms_Storage_Abstract
 
     protected function _getCursor($withLimit = true, $selectFields = false)
     {
-        $select = $this->_getSelect();
-        $where = $select->getQuerySet(Mms_Storage_Select::QS_WHERE);
+        $query = $this->_getQuery();
+        $where = $query->getQueryDataSet(Mms_Storage_Query::QS_WHERE);
         if (!empty($where)) {
             $where = $this->_buildWhere($where);
         }
         $adapter = $this->getAdapter();
         if ($selectFields === true) {
-            $this->_selectFields = $select->getQuerySet(Mms_Storage_Select::QS_FIELD);
+            $this->_selectFields = $query->getQueryDataSet(Mms_Storage_Query::QS_FIELD);
             $pathSet = static::getPathSet();
             $findPathSet = array();
             foreach ($this->_selectFields as $alias) {
@@ -137,7 +137,7 @@ abstract class Mms_Storage_Mongo extends Mms_Storage_Abstract
         }
         
         if ($withLimit === true) {
-            $limit = $select->getLimitSet($this->getRequest());
+            $limit = $query->getLimitSet($this->getRequest());
             $count = $cursor->count();
             $onPage = $limit['count'];
             if (($limit['page'] - 1)*$limit['count'] > $count) {
@@ -226,6 +226,14 @@ abstract class Mms_Storage_Mongo extends Mms_Storage_Abstract
     protected function _getEntityForUpdate($id)
     {
         return Ik_Mongo::getCollection(self::getMetadata(self::MD_SPEC_STORAGE))->findDoc($id);
+    }
+
+    /**
+     * @return Ik_Mongo_Document
+     */
+    protected function _getNewEntity($data)
+    {
+        return Ik_Mongo::getCollection(self::getMetadata(self::MD_SPEC_STORAGE))->createDoc($data);
     }
 
 /******************************************************************************

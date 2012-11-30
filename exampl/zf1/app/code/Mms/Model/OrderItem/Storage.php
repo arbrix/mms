@@ -1,5 +1,5 @@
 <?php
-class Mms_Model_OrderItem_Storage extends Mms_Storage_Mysql
+class Mms_Model_OrderItem_Storage extends Mms_Storage_Table
 {
     protected static $_metadata = array(
         self::MD_NAME => 'order_item',
@@ -49,15 +49,6 @@ class Mms_Model_OrderItem_Storage extends Mms_Storage_Mysql
             'price'   => Order_Item::P_PRICE,
             'count'   => Order_Item::P_COUNT,
         ),
-        self::MD_CONDITION => array('default' => array(
-            'correlation' => array(
-                'id',
-                'itemId',
-                'orderId',
-                'price',
-                'count',
-            ),
-        )),
         self::MD_OPERATION => array('default' => array(
             Mms_Storage_Abstract::OPERATION_CREATE => array(),
             Mms_Storage_Abstract::OPERATION_UPDATE => array(),

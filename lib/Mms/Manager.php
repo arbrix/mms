@@ -49,6 +49,7 @@ class Mms_Manager
     public function getControlRenderResult()
     {
         $renderedControlSet = array();
+        $this->processOperation();
         $controlAliasSet = $this->_getControlAliasArray();
         foreach ($controlAliasSet as $controlAlias) {
             $control = $this->getControl($controlAlias);
@@ -59,7 +60,13 @@ class Mms_Manager
 
     public function processOperation()
     {
-
+        $request = $this->getRequest();
+        $operation = $request->getParam('operation');
+        if (!$request->isPost() || ($operation == null)) {
+            return;
+        }
+        $storage = $this->getStorage();
+        $storage->processOperation($request, $this->getParams());
     }
 
     public function getData()
@@ -111,17 +118,6 @@ class Mms_Manager
         return $this->_storage;
     }
 
-    protected function _processOperation()
-    {
-        $request = $this->getRequest();
-        $operation = $request->getParam('operation');
-        if (!$request->isPost() || ($operation == null)) {
-            return;
-        }
-        $storage = $this->getStorage();
-        $storage->processOperation($request, $this->getParams());
-    }
-
 /******************************************************************************
 * CONTROLS
 ******************************************************************************/
@@ -169,15 +165,16 @@ class Mms_Manager
     protected function _getControlAliasArray()
     {
         if ($this->_controlSet === null) {
-            $formType = $this->getParams(self::C_FORM, Mms_Control_Form::TYPE_ADD);
-            if ($formType == Mms_Control_Form::TYPE_SINGLE) {
+            $formType = $this->getParams(self::C_FORM, Mms_Control_Form::TYPE_CREATE);
+            if ($formType == Mms_Control_Form::TYPE_UPDATE) {
                 $this->_controlSet = array(self::C_FORM => self::C_FORM);
                 return array(self::C_FORM);
             }
             $this->_controlSet = array(
                 self::C_FILTER => self::C_FILTER,
                 self::C_DATAGRID => self::C_DATAGRID,
-                self::C_FILTER => self::C_PAGINATOR,
+                self::C_PAGINATOR => self::C_PAGINATOR,
+                self::C_FORM => self::C_FORM,
             );
         }
 
@@ -214,7 +211,7 @@ class Mms_Manager
 
     protected function _setControlParamFormType()
     {
-        return $this->getParams(self::C_FORM, Mms_Control_Form::TYPE_ADD);
+        return $this->getParams(self::C_FORM, Mms_Control_Form::TYPE_CREATE);
     }
 
     protected function _setControlParamData()

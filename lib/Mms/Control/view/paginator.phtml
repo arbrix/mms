@@ -1,51 +1,58 @@
-<?php if ($this->params['countData'] > 0) : ?>
-<div class="bottom-navigation clearfix">
-<?php if ($this->paginator['page']['count'] > 1) : ?>
-   <div class="paginate">
-      <div class="paginator" id="shop-pagination"></div>
-      <div class="paginator_items"><?= _t('all')  . ': ' . $this->params['countData'] ?></div>
-      <div class="paginator_pages"><?= $this->paginator['page']['count'] . ' ' . _t('page') ?></div>
-   </div>
-<?php endif; ?>
-   <div class="control-group dash">
-     <label class="control-label inline" for="select01"><?= _t('Show on page') ?></label>
-     <select id="countOnPage"  name="countOnPage">
-         <?php for ($i = 1; $i < 5; $i++) {
-			$count = $i * Ik_Cms_Block_Control_Paginator::COUNT_ON_PAGE;
-	    	echo '<option value="' . $count . '"'
-	    	     . (($count == $this->paginator['countOnPage'])? 'selected="selected"' :'')
-	    	     . ' >' . $count . '</option>';
-		} ?>
-     </select>
-   </div>
-<script src="/js/paginator3000.js"></script>
-<script type="text/javascript">
+<?php
+if ($this->count > 1): ?>
+<div class="row">
+    <div class="span8">
+        <div class="pagination pagination-centered">
+            <ul>
+                <!-- First page link -->
+                <?php if ($this->current > 1): ?>
+                <li><a href="<?= $this->url(array('page' => 1)); ?>" class="controlPaginationLink">«</a></li>
+                <?php else: ?>
+                <li class="disabled"><span>«</span></li>
+                <?php endif; ?>
 
-//Paginator(#idTag, #lastNum, #showNum, #selectNum, "") //'shop-pagination', 20, 15, 13, ""
-pag3 = new Paginator('shop-pagination', <?= $this->paginator['page']['last'] . ', '
-. $this->paginator['page']['range'] . ', ' . $this->paginator['page']['current'] . ', "/' . $this->params['inodePath'] ?>/p/page/");
+                <!-- Previous page link -->
+                <?php if (isset($this->previous) && $this->previous != $this->current): ?>
+                <li><a href="<?= $this->url(array('page' => $this->previous)); ?>" class="controlPaginationLink">&lt;</a></li>
+                <?php else: ?>
+                <li class="disabled"><span>&lt;</span></li>
+                <?php endif; ?>
 
-/**
- * submit filter form by chenge count of switch page
- */
-$('#countOnPage').change(function() {
-    var input = $('<input name="countOnPage" type="hidden" value="'+$('#countOnPage option:selected').val()+'">');
-    $(input).appendTo($('#filterForm'));
-    sendFilterForm();
-});
-$('.paginationSubmit').click(function() {
-	var link = $(this).attr('data-link')
-	, sendFilter = $('#user-sidebar > ul > .filter').hasClass('active');
-	//console.log(sendFilter);
-	if (sendFilter === false) {
-		$(this).attr('href', link);
-		return;
-	}
-	//console.log(link);
-	$('#filterForm')[0].setAttribute('action', link);
-	sendFilterForm();
-});
-</script>
+                <!-- Numbered page links -->
+                <?php foreach ($this->pagesInRange as $page): ?>
+                <li<?php if ($page != $this->current): ?>
+                        ><a href="<?= $this->url(array('page' => $page)); ?>" class="controlPaginationLink"><?= $page; ?></a>
+                    <?php else: ?> class="disabled"><span><?= $page; ?></span>
+                    <?php endif; ?>
+                </li>
+                <?php endforeach; ?>
 
+                <!-- Next page link -->
+                <?php if (isset($this->next) && $this->next != $this->current): ?>
+                <li><a href="<?= $this->url(array('page' => $this->next)); ?>" class="controlPaginationLink">&gt;</a></li>
+                <?php else: ?>
+                <li class="disabled"><span>&gt;</span></li>
+                <?php endif; ?>
+
+                <!-- Last page link -->
+                <?php if (isset($this->last) && $this->last != $this->current): ?>
+                <li><a href="<?= $this->url(array('page' => $this->last)); ?>" class="controlPaginationLink">»</a></li>
+                <?php else: ?>
+                <li class="disabled"><span>»</span></li>
+                <?php endif; ?>
+            </ul>
+        </div>
+    </div>
+    <div class="span4">
+        <?= $this->firstItemNumber . ' - ' . $this->lastItemNumber . ' of ' . $this->totalItemCount; ?>
+    </div>
 </div>
+<script type="text/javascript">
+    $(function(){
+        $('.controlPaginationLink').on('click', function(){
+            $('#filterForm').attr('action',($(this).attr('href')));
+            control.sendForm('.filterField', '#filterForm');
+        });
+    });
+</script>
 <?php endif; ?>
