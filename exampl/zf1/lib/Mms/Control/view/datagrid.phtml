@@ -4,7 +4,7 @@ if ($this->params['countData'] > 0) :
     foreach ($this->operationSet as $operationAlias) {
         $operationBlock .= '<li><a title="'
             . $this->title[$operationAlias] . '" href="'
-            . $this->url(array('model' => $this->params['model'], Mms_Manager::C_FORM => Mms_Control_Form::TYPE_UPDATE))
+            . $this->baseUrl() /*. 'model/'*/ . $this->params['model']  . '/' . Mms_Manager::C_FORM . '/' . Mms_Control_Form::TYPE_UPDATE
             . '/id/%1$s" >' . $this->title[$operationAlias] . '</a></li>' . PHP_EOL;
     }
     $operationBlock .= '</ul>' . PHP_EOL;

@@ -30,6 +30,7 @@
 <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
 <script type="text/javascript">
     var control = {
+        newFilter: false,
         sendForm: function(fieldsTag, formTag) {
             $(fieldsTag).each(function() {
                 var field = $(this),
@@ -57,9 +58,10 @@
     };
     $(function(){
         $('.filterField').on('keyup', function(){
-            var button = $('#filter_submit');
-            if (button.attr('disabled') == undefined) return;
-            button.attr('disabled', false);
+            if (control.newFilter == true) return;
+            control.newFilter = true;
+            $('#filterForm').append('<input type="hidden" name="filter[newFilter]" value="1" />');
+            $('#filter_submit').attr('disabled', false);
         });
         $('#filter_submit').on('click', function() {
             control.sendForm('.filterField', '#filterForm');

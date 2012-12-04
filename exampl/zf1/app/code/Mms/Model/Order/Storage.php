@@ -60,6 +60,7 @@ class Mms_Model_Order_Storage extends Mms_Storage_Table
         )),
         self::MD_PRESET => array('default' => array(
             'where' => array(),
+            'order' => array('id' => 'DESC')
         )),
         self::MD_CONTROL_DATAGRID => array('default' => array(
             'alias' => array(

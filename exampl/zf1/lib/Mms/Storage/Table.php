@@ -137,11 +137,11 @@ abstract class Mms_Storage_Table extends Mms_Storage_Abstract
                 $limit['count'] = $this->_entitiesCount - $limit['page'] * $limit['count'];
             }
             $select->limitPage($limit['page'], $limit['count']);
-        } elseif (!empty($limit) && isset($limit['from']) && isset($limit['to'])) {
-            if ($limit['to'] > $this->_entitiesCount) {
-                $limit['to'] = $this->_entitiesCount;
+        } elseif (!empty($limit) && isset($limit['from']) && isset($limit['count'])) {
+            if ($limit['count'] > $this->_entitiesCount) {
+                $limit['count'] = $this->_entitiesCount;
             }
-            $select->limit($limit['to'], $limit['from']);
+            $select->limit($limit['count'], $limit['from']);
         }
         if (!empty($order)) {
             $orderParams = array();

@@ -27,7 +27,11 @@ class Mms_Control_Paginator extends Mms_Control_Abstract
             return static::$paginator;
         }
         $page = (int) $request->getParam('page', 1);
+        $filter = $request->getParam('filter', array());
         if ($page <= 0) {
+            $page = 1;
+        }
+        if (isset($filter['newFilter'])) {
             $page = 1;
         }
 
@@ -83,8 +87,8 @@ class Mms_Control_Paginator extends Mms_Control_Abstract
         $view->next = ($view->next > $view->last) ? $view->last : $view->next;
         $firstInPageRange = $current - floor(self::COUNT_PAGE_IN_RANGE/2);
         $firstInPageRange = (($firstInPageRange > 0) ? $firstInPageRange : 1 );
-        $view->firstItemNumber = ($firstInPageRange - 1) * self::COUNT_ON_PAGE;
-        $view->lastItemNumber = ($firstInPageRange) * self::COUNT_ON_PAGE;
+        $view->firstItemNumber = ($current - 1) * $countOnPage;
+        $view->lastItemNumber = ($current * $countOnPage > $params['countData']) ? $params['countData'] : ($current * $countOnPage);
         $pagesInRange = array();
         for ($page = $firstInPageRange; $page <= ((self::COUNT_PAGE_IN_RANGE > $view->last) ? $view->last : self::COUNT_PAGE_IN_RANGE); $page++) {
             $pagesInRange[] = $page;

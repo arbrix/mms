@@ -109,7 +109,6 @@ abstract class Mms_Entity_Abstract
         $data += $this->_data;
         $this->_changed = true;
         $this->_data = $data;
-        Zend_Debug::dump($this->_data);
     }
 
     public function save()

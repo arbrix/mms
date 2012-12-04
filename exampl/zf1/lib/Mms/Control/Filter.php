@@ -37,6 +37,9 @@ class Mms_Control_Filter extends Mms_Control_Abstract
         self::$_postData = $filter;
         //restructure data for storage
         foreach ($filter as $alias => $dataSet) {
+            if ($alias == 'newFilter') {
+                continue;
+            }
             $addNotSet = false;
             foreach ($dataSet as $dataKey => $data) {
                 if ($data['not'] == '1') {

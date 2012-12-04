@@ -6,14 +6,14 @@ if ($this->count > 1): ?>
             <ul>
                 <!-- First page link -->
                 <?php if ($this->current > 1): ?>
-                <li><a href="<?= $this->url(array('page' => 1)); ?>" class="controlPaginationLink">«</a></li>
+                <li><a data-link="<?= $this->url(array('page' => 1)); ?>" class="controlPaginationLink">«</a></li>
                 <?php else: ?>
                 <li class="disabled"><span>«</span></li>
                 <?php endif; ?>
 
                 <!-- Previous page link -->
                 <?php if (isset($this->previous) && $this->previous != $this->current): ?>
-                <li><a href="<?= $this->url(array('page' => $this->previous)); ?>" class="controlPaginationLink">&lt;</a></li>
+                <li><a data-link="<?= $this->url(array('page' => $this->previous)); ?>" class="controlPaginationLink">&lt;</a></li>
                 <?php else: ?>
                 <li class="disabled"><span>&lt;</span></li>
                 <?php endif; ?>
@@ -21,7 +21,7 @@ if ($this->count > 1): ?>
                 <!-- Numbered page links -->
                 <?php foreach ($this->pagesInRange as $page): ?>
                 <li<?php if ($page != $this->current): ?>
-                        ><a href="<?= $this->url(array('page' => $page)); ?>" class="controlPaginationLink"><?= $page; ?></a>
+                        ><a data-link="<?= $this->url(array('page' => $page)); ?>" class="controlPaginationLink"><?= $page; ?></a>
                     <?php else: ?> class="disabled"><span><?= $page; ?></span>
                     <?php endif; ?>
                 </li>
@@ -29,14 +29,14 @@ if ($this->count > 1): ?>
 
                 <!-- Next page link -->
                 <?php if (isset($this->next) && $this->next != $this->current): ?>
-                <li><a href="<?= $this->url(array('page' => $this->next)); ?>" class="controlPaginationLink">&gt;</a></li>
+                <li><a data-link="<?= $this->url(array('page' => $this->next)); ?>" class="controlPaginationLink">&gt;</a></li>
                 <?php else: ?>
                 <li class="disabled"><span>&gt;</span></li>
                 <?php endif; ?>
 
                 <!-- Last page link -->
                 <?php if (isset($this->last) && $this->last != $this->current): ?>
-                <li><a href="<?= $this->url(array('page' => $this->last)); ?>" class="controlPaginationLink">»</a></li>
+                <li><a data-link="<?= $this->url(array('page' => $this->last)); ?>" class="controlPaginationLink">»</a></li>
                 <?php else: ?>
                 <li class="disabled"><span>»</span></li>
                 <?php endif; ?>
@@ -50,7 +50,7 @@ if ($this->count > 1): ?>
 <script type="text/javascript">
     $(function(){
         $('.controlPaginationLink').on('click', function(){
-            $('#filterForm').attr('action',($(this).attr('href')));
+            $('#filterForm').attr('action',($(this).attr('data-link')));
             control.sendForm('.filterField', '#filterForm');
         });
     });
