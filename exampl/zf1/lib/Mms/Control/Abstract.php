@@ -241,6 +241,7 @@ abstract class Mms_Control_Abstract
 ******************************************************************************/
 
     const P_DATA      = 'data';
+    const P_PROC_DATA = 'procData';
     const P_TITLE     = 'title';
     const P_PARAMS    = 'params';
     const P_METADATA    = 'metadata';
@@ -250,6 +251,7 @@ abstract class Mms_Control_Abstract
     //in specific control define keys only with true, that really need
     protected $_requireData = array(
         self::P_DATA      => false,
+        self::P_PROC_DATA => false,
         self::P_TITLE     => false,
         self::P_PARAMS    => false,
         self::P_METADATA    => false,

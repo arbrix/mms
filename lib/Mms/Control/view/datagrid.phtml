@@ -27,7 +27,7 @@ if ($this->params['countData'] > 0) :
 <tbody id="checkboxes">
     <?php
     $i = 0;
-    foreach ($this->data as $rowKey => $row) :
+    foreach ($this->procData as $rowKey => $row) :
         $i++;
     ?>
         <tr class="toggleRow" data-line-number="<?= $i ?>">
@@ -39,23 +39,7 @@ foreach ($this->aliasSet as $alias) {
         echo '<td></td>';
         continue;
     }
-    echo '<td>';
-    if (empty($this->metadata[Mms_Storage_Abstract::MD_FIELD][$alias]['tpl']) || $this->metadata[Mms_Storage_Abstract::MD_FIELD][$alias]['tpl'] == 'text') {
-        echo $data;
-    } else {
-        try {
-        echo $this->partial(
-           'datagrid/' . $this->metadata[Mms_Storage_Abstract::MD_FIELD][$alias]['tpl'] . '.phtml',
-            array(
-                'alias' => $alias,
-             	'data' => $row,
-                'metaData' => $this->metadata[Mms_Storage_Abstract::MD_FIELD][$alias],
-         ));
-        }catch(Exception $ex) {
-            echo $ex->getMessage();
-        }
-    }
-    echo '</td>' . PHP_EOL;
+    echo '<td>' . $data . '</td>' . PHP_EOL;
 }
 if ($operationBlock != '') {
     echo '<td>' . vsprintf($operationBlock, array($row['id'])) . '</td>' . PHP_EOL;

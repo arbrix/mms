@@ -12,7 +12,7 @@ class Mms_Entity_Row extends Mms_Entity_Abstract
         $fieldsData =  $storageClass::getMetadata(Mms_Storage_Abstract::MD_FIELD);
         $data = array();
         $entityData = $this->_specificEntity->toArray();
-        foreach ($fieldsData as $alias) {
+        foreach (array_keys($fieldsData) as  $alias) {
             if (isset($entityData[$pathSet[$alias]])) {
                 $data[$alias] = $entityData[$pathSet[$alias]];
             }
@@ -23,7 +23,7 @@ class Mms_Entity_Row extends Mms_Entity_Abstract
     public function _saveData()
     {
         $storageClass = $this->getStorageClass();
-        $pathSet = $storageClass::getPath();
+        $pathSet = $storageClass::getPathSet();
         $fieldSet = $storageClass::getMetadata(Mms_Storage_Abstract::MD_FIELD);
         foreach ($this->_data as $alias => $value) {
             if ($fieldSet[$alias]['isChangeable'] === true) {

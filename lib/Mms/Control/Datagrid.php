@@ -6,7 +6,7 @@ class Mms_Control_Datagrid extends Mms_Control_Abstract
 ******************************************************************************/
 
     protected $_requireData = array(
-        self::P_DATA      => true,
+        self::P_PROC_DATA => true,
         self::P_TITLE     => true,
         self::P_PARAMS    => true,
         self::P_METADATA    => true,

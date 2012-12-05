@@ -1,0 +1,8 @@
+<select id="<?= $this->id ?>"  class="medium" name="<?= $this->name ?>">
+<?php foreach ($this->valueSet  as $key => $param) {
+echo '<option value="' . $key . '"'
+	. (($this->field == $key)?' selected="selected"':'')
+	. '>' . $param['title'] . '</option>';
+}
+?>
+</select>

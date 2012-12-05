@@ -41,7 +41,9 @@ class Mms_Model_Order_Storage extends Mms_Storage_Table
                 'title' => array(
                      'en' => 'State',
                 ),
-                'type' => 'int'
+                'type' => 'int',
+                'tpl' => 'list_of_array',
+                'isChangeable' => true,
             ),
         ),
         self::MD_PATH => array(
@@ -53,7 +55,13 @@ class Mms_Model_Order_Storage extends Mms_Storage_Table
         ),
         self::MD_OPERATION => array('default' => array(
             Mms_Storage_Abstract::OPERATION_CREATE => array(),
-            Mms_Storage_Abstract::OPERATION_UPDATE => array(),
+            Mms_Storage_Abstract::OPERATION_UPDATE => array('processData' => array(
+                'field' => array('id',
+                    'userId',
+                    'amount',
+                    'created',
+                    'state',
+                ))),
             Mms_Storage_Abstract::OPERATION_DELETE => array(),
             Mms_Storage_Abstract::OPERATION_EXPORT => array('link' => '/export/model/%s'),
             Mms_Storage_Abstract::OPERATION_FILTER => array(),
@@ -73,7 +81,6 @@ class Mms_Model_Order_Storage extends Mms_Storage_Table
             'operations' => array(
                 'each' => array(
                     'update',
-                    'delete',
                 ),
                 'all' => array('export'),
             ),
@@ -97,8 +104,43 @@ class Mms_Model_Order_Storage extends Mms_Storage_Table
                     'state',
                 ),
             ),
+            'update' => array(
+                'alias' => array(
+                    'userId',
+                    'amount',
+                    'created',
+                    'state',
+                ),
+            ),
+        )),
+        self::MD_HELPERS => array('default' => array(
+            'state' => array('state'))
+        ),
+        self::MD_FIELD_SET => array('default' => array(
+            'state' => 'state',
         )),
     );
+
+    protected static function _getStateSet()
+    {
+        return array(
+            0 => array('label' => 'wait', 'title' => 'новый'),
+            4 => array('label' => 'warning', 'title' => 'в процессе'),
+            5 => array('label' => 'success', 'title' => 'выполненный'),
+            9 => array('label' => 'important', 'title' => 'неудачный'),
+        );
+    }
+
+    public static function helperState(& $data, $alias, $params)
+    {
+        $stateSet = self::getMetadata(self::MD_FIELD_SET);
+        $stateSet = $stateSet['state'];
+
+        foreach (array_keys($data) as $rowKey) {
+            $stateKey = $data[$rowKey][$alias];
+            $data[$rowKey][$alias] =  ' <span class="label label-'.  $stateSet[$stateKey]['label'] . '" >'. $stateSet[$stateKey]['title'].' </span>';
+        }
+    }
 
 /******************************************************************************
 * END

@@ -43,16 +43,17 @@ abstract class Mms_Storage_Abstract
         if (empty($fieldSet)) {
             return;
         }
-        $profile = $this->getProfile();
+        $mdField = self::getMetadata(self::MD_FIELD);
+        $virtualSet = self::getMetadata(self::MD_VIRTUAL);
         foreach ($fieldSet as $fieldAlias) {
-            if (!isset(static::$_metadata[self::MD_FIELD][$fieldAlias])
-                && !isset(static::$_metadata[self::MD_VIRTUAL][$fieldAlias])
+            if (!isset($mdField[$fieldAlias])
+                && !isset($virtualSet[$fieldAlias])
             ) {
                 continue;
             }
             $getMethodName = '_get' . ucfirst($fieldAlias) . 'Set';
             if (method_exists($this, $getMethodName)) {
-                static::$_metadata[self::MD_FIELD_SET][$profile][$fieldAlias] = $this->{$getMethodName}();
+                static::$_metadata[self::MD_FIELD_SET][$fieldAlias] = $this->{$getMethodName}();
             }
         }
     }
@@ -522,7 +523,7 @@ abstract class Mms_Storage_Abstract
     protected $_dataSet;
     public $isExport = false;
 
-    public function getDataSet($withLimits = true, $withFields = false)
+    public function getProcDataSet($withLimits = true, $withFields = false)
     {
         $dataSet = array();
         $pathSet = $this->_selectData($dataSet, $withLimits, $withFields);
@@ -541,8 +542,20 @@ abstract class Mms_Storage_Abstract
                         $params = null;
                     }
                     $helperMethodName = 'helper' . ucfirst($helperAlias);
-                    self::$helperMethodName($dataSet, $alias, $params);
+                    static::$helperMethodName($dataSet, $alias, $params);
                 }
+            }
+        }
+        return $dataSet;
+    }
+
+    public function getDataSet($withLimits = true, $withFields = false)
+    {
+        $dataSet = array();
+        $pathSet = $this->_selectData($dataSet, $withLimits, $withFields);
+        foreach ($pathSet as $alias => $path) {
+            foreach (array_keys($dataSet) as $rowKey) {
+                $dataSet[$rowKey][$alias] = $dataSet[$rowKey][$path];
             }
         }
         return $dataSet;

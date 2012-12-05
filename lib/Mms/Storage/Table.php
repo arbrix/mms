@@ -250,7 +250,7 @@ abstract class Mms_Storage_Table extends Mms_Storage_Abstract
     protected function _getEntityForUpdate($id)
     {
         $table = Ik_Db::getTable(self::getMetadata(self::MD_SPEC_STORAGE));
-        return $table->fetchRow($table->select()->forUpdate()->where('id = ', $id));
+        return $table->fetchRow($table->select()->forUpdate()->where('id = ?', $id));
     }
 
     /**

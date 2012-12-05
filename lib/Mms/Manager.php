@@ -220,6 +220,12 @@ class Mms_Manager
         return $storage->getDataSet();
     }
 
+    protected function _setControlParamProcData()
+    {
+        $storage = $this->getStorage();
+        return $storage->getProcDataSet();
+    }
+
     protected function _setControlParamExportData()
     {
         $storage = $this->getStorage();

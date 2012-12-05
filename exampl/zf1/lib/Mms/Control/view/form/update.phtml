@@ -19,7 +19,7 @@ $data = current($this->data);
                     ? $this->fieldMetadata[$alias]['default']
                     : '',
                 'field' => isset($data[$alias]) ? $data[$alias] : '',
-                'valueSet' => $this->valueSet,
+                'valueSet' => (isset($this->valueSet[$alias]) ? $this->valueSet[$alias] : array()),
                 'alias' => $alias,
             )
         );
